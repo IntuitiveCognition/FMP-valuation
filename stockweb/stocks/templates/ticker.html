@@ -14,9 +14,9 @@
     <h3>Price: {{ quote.price }}</h3>
     {{ table|safe }}
     
-    <div id="container"></div>
+    <div id="container1" style="height: 500px"></div>
     <script>
-        var data ={{chart_json|safe}};
+        var data ={{ chart_json|safe }};
         console.log('data:', data); // Output data to console
         var dates = [];
         var highs = [];
@@ -29,7 +29,7 @@
         console.log('dates:', dates); // Output dates to console
         console.log('highs:', highs); // Output highs to console
         console.log('div:', div); // Output lows to console
-        var chart = Highcharts.chart('container', {
+        var chart = Highcharts.chart('container1', {
             chart: {
                 type: 'areaspline',
                 zoomType: 'x'
@@ -67,24 +67,61 @@
                 type: 'line' // Change series type to line
             }]
         });
-    
-        var button = document.createElement('input');
-        button.type = 'checkbox';
-        button.id = 'toggle-price';
-        button.checked = true;
-        var label = document.createElement('label');
-        label.innerHTML = 'Price';
-        label.setAttribute('for', 'toggle-price');
-    
-        var container = document.getElementById('container');
-        container.parentNode.insertBefore(button, container);
-        container.parentNode.insertBefore(label, container);
-    
-        button.addEventListener('change', function() {
-            chart.series[0].setVisible(this.checked);
-        });
     </script>
-    
+    <div id="container2" style="height: 500px"></div>
+    <<script>
+        var data2 = {{ all_annual|safe }} ;
+        console.log('data2:', data2); // Output data to console
+        var dates2 = [];
+        var highs2 = [];
+        var div2 = []; // Add new array for lows
+        for (var i=0; i<data2.length; i++) {
+            dates2.push(data2[i]['calendarYear']);
+            highs2.push(data2[i]['stockPrice']);
+            div2.push(data2[i]['dividend']); // Push lows to the new array
+        }
+        console.log('dates2:', dates2); // Output dates to console
+        console.log('highs2:', highs2); // Output highs to console
+        console.log('div2:', div2); // Output lows to console
+        var chart2 = Highcharts.chart('container2', {
+            chart: {
+                type: 'areaspline',
+                zoomType: 'x'
+            },
+            tooltip: {
+                animation: true,
+                backgroundColor: '#fadad7',
+            },
+            credits: {
+                enabled: false
+            },
+            title: {
+                text: 'Highcharts Line Chart'
+            },
+            xAxis: {
+                categories: dates2
+            },
+            yAxis: [{ // Add new yAxis array
+                title: {
+                    text: 'Price'
+                }
+            }, {
+                title: {
+                    text: 'Dividend'
+                },
+                opposite: true // Place on the right side
+            }],
+            series: [{
+                name: 'stockPrice',
+                data: highs2
+            }, {
+                name: 'Dividend', // Add new series for lows
+                data: div2,
+                yAxis: 1, // Assign the new yAxis to this series
+                type: 'line' // Change series type to line
+            }]
+        });
+    </script> 
     
 </body>
 </html>

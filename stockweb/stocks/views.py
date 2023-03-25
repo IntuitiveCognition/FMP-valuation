@@ -5,7 +5,7 @@ from . import fmp
 from . import financedata
 from .  import functions
 from . import chartdata
-
+from . import allannual
 # Create your views here.
 def index(request):
     if request.method == 'POST':#from index.html if form submitted
@@ -23,13 +23,14 @@ def ticker(request, tid):#view for ticker.html
     finance_df = financedata.get_finance_data(tid,latest10K_date)
     finance_df = finance_df.to_html() 
     chart_json = chartdata.get_chart_data(tid,latest10K_date)
-    
+    all_annual =  allannual.get_all_annual(tid,latest10K_date)
+
     context ={}
     context['date'] = latest10K_date
     context['ticker'] = tid
     context['quote'] = fmp.get_quote(tid)
     context['table'] = finance_df
     context['chart_json'] = chart_json
-    
+    context['all_annual'] = all_annual
     return render(request, 'ticker.html', context)
 
