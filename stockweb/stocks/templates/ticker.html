@@ -100,13 +100,22 @@
             },
             xAxis: {
                 categories: years,
+                
                 labels: {
                     formatter: function() {
                         var divIndex = years.indexOf(this.value);
                         var divValue = dividends[divIndex];
+                        var epsValue = EPS[divIndex];
                         var str = '<span style="font-size: 12px;">' + this.value + '</span><br/>';
                         if (divValue) {
-                            str += '<span style="font-size: 12px; color: #666;">' + divValue + '</span>';
+                            str += '<span style="font-size: 10px; color: #666;">DIV: ' + divValue + '</span><br/>';
+                        } else {
+                            str += '<span style="font-size: 10px; color: #666;">DIV: 0</span><br/>'; // Return zero if no dividend
+                        }
+                        if (epsValue) {
+                            str += '<span style="font-size: 10px; color: #666;">EPS: ' + epsValue + '</span>';
+                        } else {
+                            str += '<span style="font-size: 10px; color: #666;">EPS: 0</span>'; // Return zero if no EPS
                         }
                         return str;
                     }
@@ -148,35 +157,12 @@
                 lineColor: '#fc5e03'
             }, {
                 name: 'Dividend',
-                type: 'column',
-                yAxis: 1,
                 data: dividends,
-                color: '#2F7ED8',
-                tooltip: {
-                    valuePrefix: '$'
-                },
-                borderWidth: 0,
-                pointPadding: 0.05,
-                groupPadding: 0,
-                pointPlacement: 'center',
-                states: {
-                    hover: {
-                        enabled: false
-                    }
-                },
-                dataLabels: {
-                    enabled: true,
-                    color: '#666',
-                    style: {
-                        fontSize: '10px',
-                        fontWeight: 'bold',
-                        textShadow: '0 0 0px #000'
-                    },
-                    formatter: function() {
-                        if (this.y) {
-                            return '$' + this.y;
-                        }
-                    }
+                color: 'white',                
+                lineWidth: 2,
+                zIndex: 1,
+                marker:{
+                    enabled: false
                 }
             }]
         });
