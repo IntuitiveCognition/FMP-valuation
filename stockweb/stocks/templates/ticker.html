@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Ticker</title>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+</head>
+<body>
+    <a href="http://localhost:8000/stocks" class="btn btn-primary">Go Home</a>    
+
+    <h1>{{ quote.name }}  ({{ ticker }})</h1>
+    <h3>Last Annual Report Date: {{ date }}</h3>
+    <h3>Price: {{ quote.price }}</h3>
+    {{ table|safe }}
+    
+    <div id="container"></div>
+    <script>
+        var data ={{chart_json|safe}};
+        console.log('data:', data); // Output data to console
+        var dates = [];
+        var highs = [];
+        var div = []; // Add new array for lows
+        for (var i=0; i<data.length; i++) {
+            dates.push(data[i]['Year']);
+            highs.push(data[i]['Price']);
+            div.push(data[i]['Div']); // Push lows to the new array
+        }
+        console.log('dates:', dates); // Output dates to console
+        console.log('highs:', highs); // Output highs to console
+        console.log('div:', div); // Output lows to console
+        var chart = Highcharts.chart('container', {
+            chart: {
+                type: 'areaspline',
+                zoomType: 'x'
+            },
+            tooltip: {
+                animation: true,
+                backgroundColor: '#fadad7',
+            },
+            credits: {
+                enabled: false
+            },
+            title: {
+                text: 'Highcharts Line Chart'
+            },
+            xAxis: {
+                categories: dates
+            },
+            yAxis: [{ // Add new yAxis array
+                title: {
+                    text: 'Price'
+                }
+            }, {
+                title: {
+                    text: 'Dividend'
+                },
+                opposite: true // Place on the right side
+            }],
+            series: [{
+                name: 'Price',
+                data: highs
+            }, {
+                name: 'Div', // Add new series for lows
+                data: div,
+                yAxis: 1, // Assign the new yAxis to this series
+                type: 'line' // Change series type to line
+            }]
+        });
+    
+        var button = document.createElement('input');
+        button.type = 'checkbox';
+        button.id = 'toggle-price';
+        button.checked = true;
+        var label = document.createElement('label');
+        label.innerHTML = 'Price';
+        label.setAttribute('for', 'toggle-price');
+    
+        var container = document.getElementById('container');
+        container.parentNode.insertBefore(button, container);
+        container.parentNode.insertBefore(label, container);
+    
+        button.addEventListener('change', function() {
+            chart.series[0].setVisible(this.checked);
+        });
+    </script>
+    
+    
+</body>
+</html>
+
