@@ -69,16 +69,19 @@
         });
     </script>
     <div id="container2" style="height: 500px"></div>
-    <<script>
+    <script>
         var data2 = {{ all_annual|safe }} ;
-        var dates2 = [];
+        var years = [];
         var price = [];
-        var div3 = []; // Add new array for lows
+        var EPS = [];
+        var dividends = []; // Add new array for dividends
         for (var i=0; i<data2.length; i++) {
-            dates2.push(data2[i]['calendarYear']);
+            years.push(data2[i]['calendarYear']);
             price.push(data2[i]['stockPrice']);
-            div3.push(data2[i]['eps']); // Push lows to the new array
-        }        
+            EPS.push(data2[i]['eps']);
+            dividends.push(data2[i]['dividend']); // Push dividends to the new array
+        }
+
         var chart2 = Highcharts.chart('container2', {
             chart: {
                 type: 'line',
@@ -96,7 +99,18 @@
                 text: 'Highcharts Line Chart'
             },
             xAxis: {
-                categories: dates2
+                categories: years,
+                labels: {
+                    formatter: function() {
+                        var divIndex = years.indexOf(this.value);
+                        var divValue = dividends[divIndex];
+                        var str = '<span style="font-size: 12px;">' + this.value + '</span><br/>';
+                        if (divValue) {
+                            str += '<span style="font-size: 12px; color: #666;">' + divValue + '</span>';
+                        }
+                        return str;
+                    }
+                }
             },
             yAxis: [{ 
                 title: {
@@ -104,7 +118,7 @@
                 }
             }, {
                 title: {
-                    text: 'Dividend'
+                    text: 'EPS'
                 },
                 opposite: true
             }],
@@ -113,13 +127,13 @@
                 data: price,
                 color: 'black',                
                 lineWidth: 2,
-                zIndex: 1, // add zIndex property with a higher value
+                zIndex: 1,
                 marker:{
-                        enabled: false // set the marker option to false
-                        }
+                    enabled: false
+                }
             }, {
-                name: 'Dividend',
-                data: div3,
+                name: 'EPS',
+                data: EPS,
                 yAxis: 1,
                 type: 'area',
                 color: '#006400',
@@ -131,10 +145,44 @@
                     ]
                 },
                 lineWidth: 3,
-                lineColor: '#fc5e03' // set the line color to orange
+                lineColor: '#fc5e03'
+            }, {
+                name: 'Dividend',
+                type: 'column',
+                yAxis: 1,
+                data: dividends,
+                color: '#2F7ED8',
+                tooltip: {
+                    valuePrefix: '$'
+                },
+                borderWidth: 0,
+                pointPadding: 0.05,
+                groupPadding: 0,
+                pointPlacement: 'center',
+                states: {
+                    hover: {
+                        enabled: false
+                    }
+                },
+                dataLabels: {
+                    enabled: true,
+                    color: '#666',
+                    style: {
+                        fontSize: '10px',
+                        fontWeight: 'bold',
+                        textShadow: '0 0 0px #000'
+                    },
+                    formatter: function() {
+                        if (this.y) {
+                            return '$' + this.y;
+                        }
+                    }
+                }
             }]
         });
-    </script> 
+    </script>
+    
+
     
 </body>
 </html>
