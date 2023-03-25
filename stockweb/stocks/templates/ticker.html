@@ -71,25 +71,22 @@
     <div id="container2" style="height: 500px"></div>
     <<script>
         var data2 = {{ all_annual|safe }} ;
-        console.log('data2:', data2); // Output data to console
         var dates2 = [];
-        var highs2 = [];
-        var div2 = []; // Add new array for lows
+        var price = [];
+        var div3 = []; // Add new array for lows
         for (var i=0; i<data2.length; i++) {
             dates2.push(data2[i]['calendarYear']);
-            highs2.push(data2[i]['stockPrice']);
-            div2.push(data2[i]['dividend']); // Push lows to the new array
-        }
-        console.log('dates2:', dates2); // Output dates to console
-        console.log('highs2:', highs2); // Output highs to console
-        console.log('div2:', div2); // Output lows to console
+            price.push(data2[i]['stockPrice']);
+            div3.push(data2[i]['eps']); // Push lows to the new array
+        }        
         var chart2 = Highcharts.chart('container2', {
             chart: {
-                type: 'areaspline',
-                zoomType: 'x'
+                type: 'line',
+                zoomType: 'x',
+                backgroundColor: '#f5f5f5'
             },
             tooltip: {
-                animation: true,
+                animation: false,
                 backgroundColor: '#fadad7',
             },
             credits: {
@@ -101,7 +98,7 @@
             xAxis: {
                 categories: dates2
             },
-            yAxis: [{ // Add new yAxis array
+            yAxis: [{ 
                 title: {
                     text: 'Price'
                 }
@@ -109,16 +106,32 @@
                 title: {
                     text: 'Dividend'
                 },
-                opposite: true // Place on the right side
+                opposite: true
             }],
             series: [{
                 name: 'stockPrice',
-                data: highs2
+                data: price,
+                color: 'black',                
+                lineWidth: 2,
+                zIndex: 1, // add zIndex property with a higher value
+                marker:{
+                        enabled: false // set the marker option to false
+                        }
             }, {
-                name: 'Dividend', // Add new series for lows
-                data: div2,
-                yAxis: 1, // Assign the new yAxis to this series
-                type: 'line' // Change series type to line
+                name: 'Dividend',
+                data: div3,
+                yAxis: 1,
+                type: 'area',
+                color: '#006400',
+                fillColor: {
+                    linearGradient: [0, 0, 0, 800],
+                    stops: [
+                        [0, 'rgba(0, 100, 0, 0.8)'],
+                        [1, 'rgba(0, 200, 0, 0.1)']
+                    ]
+                },
+                lineWidth: 3,
+                lineColor: '#fc5e03' // set the line color to orange
             }]
         });
     </script> 
