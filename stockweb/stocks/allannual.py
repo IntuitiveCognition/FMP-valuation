@@ -40,5 +40,6 @@ def get_all_annual(symbol,latest10K_date):
     merged_df = merged_df.drop(cols_to_drop, axis=1)
     merged_df['dividend'] = abs((merged_df.dividendsPaid / merged_df.numberOfShares).round(2))
     merged_df = merged_df.iloc[::-1]
+    merged_df = merged_df.fillna(0)
     all_annual = merged_df.to_dict(orient='records')
     return all_annual
