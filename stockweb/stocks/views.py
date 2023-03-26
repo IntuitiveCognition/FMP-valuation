@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect
 from . import forms
 from . import fmp
 from . import financedata
-from .  import functions
+from . import functions
 from . import chartdata
 from . import allannual
 # Create your views here.
