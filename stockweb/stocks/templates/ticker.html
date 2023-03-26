@@ -72,7 +72,8 @@
         var buttons = document.createElement('div');
         var buttonHTML = '';
         for (var i = 0; i < 20; i++) {
-        buttonHTML += '<button class="date-range-btn" data-start="' + (dates.length - ((i+1) * 1)) + '" data-end="' + dates.length + '">Last ' + (i+1) + ' yr' + (i == 0 ? '' : 's') + '</button>';
+        buttonHTML += '<button class="date-range-btn" data-start="' + (dates.length - ((i+1) * 1)) + '" data-end="' + 
+        dates.length + '">Last ' + (i+1) + ' Yr' + (i == 0 ? '' : 's') + '</button>';
         }
         buttonHTML += '<button class="date-range-btn" data-start="0" data-end="' + dates.length + '">All</button>';
         buttons.innerHTML = buttonHTML;
@@ -97,25 +98,6 @@
         chart.series[1].setData(filteredDiv);
         }
     </script>
-    
-    
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-    
     
     
     <div id="container2" style="height: 500px"></div>
@@ -216,7 +198,37 @@
                 }
             }]
         });
-        
+        // Add buttons to filter data by date range
+        var buttons2 = document.createElement('div');
+        var buttonHTML2 = '';
+        for (var i = 0; i < 20; i++) {
+        buttonHTML2 += '<button class="date-range-btn" data-start="' + (years.length - ((i+1) * 1)) + '" data-end="' + 
+        years.length + '">Last ' + (i+1) + ' Yr' + (i == 0 ? '' : 's') + '</button>';
+        }
+        buttonHTML2 += '<button class="date-range-btn" data-start="0" data-end="' + years.length + '">All</button>';
+        buttons2.innerHTML = buttonHTML2;
+        document.getElementById('container2').parentNode.insertBefore(buttons2, document.getElementById('container2'));
+
+        // Add event listeners to buttons
+        var dateRangeButtons2 = document.querySelectorAll('.date-range-btn');
+        for (var i = 0; i < dateRangeButtons2.length; i++) {
+        dateRangeButtons2[i].addEventListener('click', function() {
+            updateData(this.getAttribute('data-start'), this.getAttribute('data-end'));
+        });
+        }
+
+        // Function to update the chart's data based on the selected date range
+        function updateData(startIndex, endIndex) {
+        var filteredYears = years.slice(startIndex, endIndex);
+        var filteredPrice = price.slice(startIndex, endIndex);
+        var filteredEPS = EPS.slice(startIndex, endIndex);
+        var filteredDividends = dividends.slice(startIndex, endIndex);
+
+        chart2.xAxis[0].setCategories(filteredYears);
+        chart2.series[0].setData(filteredPrice);
+        chart2.series[1].setData(filteredEPS);
+        chart2.series[2].setData(filteredDividends);
+        }        
     </script>
     
 
