@@ -15,61 +15,56 @@
     
     <div id="container1" style="height: 500px"></div>
     <script>
-        var data = {{ chart_json|safe }};
-        console.log('data:', data); 
-        var dates = [];
-        var highs = [];
-        var div = []; 
-        for (var i=0; i<data.length; i++) {
-            dates.push(data[i]['Year']);
-            highs.push(data[i]['Price']);
-            div.push(data[i]['Div']); 
+        var yearlydata = {{ chart_json|safe }};
+        console.log('data:', yearlydata); 
+        var yearlydates = [];
+        var yearlyhighs = [];
+        var yearlydiv = [];
+         
+        for (var i=0; i<yearlydata.length; i++) {
+            yearlydates.push(yearlydata[i]['Year']);
+            yearlyhighs.push(yearlydata[i]['Price']);
+            yearlydiv.push(yearlydata[i]['Div']); 
         }
-        console.log('dates:', dates); 
-        
-        var chart = Highcharts.chart('container1', {
-            chart: {
-                type: 'areaspline',
-                zoomType: 'x'
-            },
-            tooltip: {
-                animation: true,
-                backgroundColor: '#fadad7',
-            },
-            credits: {
-                enabled: false
-            },
-            navigator: {
-                enabled: true
+        var weeklydata = {{ weekly_price|safe }};
+        var weeklyprice = [];
+        var weeklydate = [];    
+        for (var i=0; i<weeklydata.length; i++) {
+            weeklyprice.push(weeklydata[i]['close']);
+            weeklydate.push(weeklydata[i]['date']); 
+        }
+        console.log('weeklyprice:', weeklyprice); 
+        var chart = Highcharts.stockChart('container1', {
+            rangeSelector: {
+                selected: 1
             },
             title: {
-                text: 'Value In Sight'
+                text: 'Stock Prices'
             },
-            xAxis: {
-                categories: dates
-            },
-            yAxis: [{ 
-                title: {
-                    text: 'Price'
-                }
-            }, {
-                title: {
-                    text: 'Dividend'
-                },
-                opposite: true 
-            }],
             series: [{
-                name: 'Price',
-                data: highs
+                name: 'Yearly',
+                data: yearlyhighs,
+                pointStart: Date.UTC(yearlydates[0], 0, 1),
+                pointInterval: 365 * 24 * 3600 * 1000 // one year in milliseconds
             }, {
-                name: 'Div',
-                data: div,
-                yAxis: 1, 
-                type: 'line' 
+                name: 'Weekly',
+                data: weeklyprice,
+                pointStart: Date.parse(weeklydate[0]),
+                pointInterval: 7 * 24 * 3600 * 1000 // one week in milliseconds
+            }, {
+                name: 'Dividend',
+                data: yearlydiv,
+                pointStart: Date.UTC(yearlydates[0], 0, 1),
+                pointInterval: 365 * 24 * 3600 * 1000, // one year in milliseconds
+                color: 'green',                
+                lineWidth: 2,
+                zIndex: 1,
+                marker:{
+                    enabled: true
+                }
             }]
-            
-        });       
-    </script>
+        });      
+    </script> 
     
     
     <div id="container2" style="height: 500px"></div>
