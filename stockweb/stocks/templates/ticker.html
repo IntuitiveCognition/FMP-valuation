@@ -41,16 +41,26 @@
             title: {
                 text: 'Stock Prices'
             },
+            yAxis: [{ // y-axis for the yearly and dividend series
+                opposite: true,
+            }, { // y-axis for the weekly series
+                opposite: false,
+                title: {
+                    text: 'Weekly Price'
+                }
+            }],
             series: [{
                 name: 'Yearly',
                 data: yearlyhighs,
                 pointStart: Date.UTC(yearlydates[0], 0, 1),
-                pointInterval: 365 * 24 * 3600 * 1000 // one year in milliseconds
+                pointInterval: 365 * 24 * 3600 * 1000, // one year in milliseconds,
+                yAxis: 1 // assign this series to the first y-axis
             }, {
                 name: 'Weekly',
                 data: weeklyprice,
                 pointStart: Date.parse(weeklydate[0]),
-                pointInterval: 7 * 24 * 3600 * 1000 // one week in milliseconds
+                pointInterval: 7 * 24 * 3600 * 1000, // one week in milliseconds
+                yAxis: 1 // assign this series to the second y-axis
             }, {
                 name: 'Dividend',
                 data: yearlydiv,
@@ -58,10 +68,11 @@
                 pointInterval: 365 * 24 * 3600 * 1000, // one year in milliseconds
                 color: 'green',                
                 lineWidth: 2,
-                zIndex: 1,
+                zIndex: 0,
                 marker:{
                     enabled: true
-                }
+                },
+                yAxis: 0 // assign this series to the first y-axis
             }]
         });      
     </script> 
