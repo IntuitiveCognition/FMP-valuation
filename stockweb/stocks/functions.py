@@ -137,7 +137,10 @@ def get_weekly_price(symbol):
     price_df = price_df.set_index(pd.to_datetime(price_df.index))
     logic = {'open'  : 'first','high'  : 'max','low'   : 'min','close' : 'last','volume': 'sum'}
     price_df = price_df.resample('W').apply(logic)
-    price_df.index = price_df.index - pd.tseries.frequencies.to_offset("6D")
+    price_df = price_df.reset_index().rename(columns={'index': 'date'})
+    price_df['date'] = price_df['date'].dt.strftime('%Y-%m-%d')
+    #price_df.index = price_df.index - pd.tseries.frequencies.to_offset("6D")
+    price_df = price_df.to_dict(orient='records')
     return price_df
 
 

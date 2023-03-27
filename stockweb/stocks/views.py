@@ -24,6 +24,7 @@ def ticker(request, tid):#view for ticker.html
     finance_df = finance_df.to_html() 
     chart_json = chartdata.get_chart_data(tid,latest10K_date)
     all_annual =  allannual.get_all_annual(tid,latest10K_date)
+    weekly_price = functions.get_weekly_price(tid)
 
     context ={}
     context['date'] = latest10K_date
@@ -32,5 +33,6 @@ def ticker(request, tid):#view for ticker.html
     context['table'] = finance_df
     context['chart_json'] = chart_json
     context['all_annual'] = all_annual
+    context['weekly_price'] = weekly_price
     return render(request, 'ticker.html', context)
 

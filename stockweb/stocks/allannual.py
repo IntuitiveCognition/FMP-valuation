@@ -28,7 +28,7 @@ def get_all_annual(symbol,latest10K_date):
     enterprisevalue_df = pd.DataFrame(enterprisevalue).round(2)
     ratios_df = pd.DataFrame(ratios).round(2)
     
-    # Merge dataframes using date as index
+    # Merge dataframes 
     merged_df = income_df.merge(balance_df, on='date', suffixes=('', '_balance'))
     merged_df = merged_df.merge(cash_df, on='date', suffixes=('', '_cash'))
     merged_df = merged_df.merge(keymetrics_df, on='date', suffixes=('', '_keymetrics'))

@@ -16,18 +16,17 @@
     <div id="container1" style="height: 500px"></div>
     <script>
         var data = {{ chart_json|safe }};
-        console.log('data:', data); // Output data to console
+        console.log('data:', data); 
         var dates = [];
         var highs = [];
-        var div = []; // Add new array for lows
+        var div = []; 
         for (var i=0; i<data.length; i++) {
             dates.push(data[i]['Year']);
             highs.push(data[i]['Price']);
-            div.push(data[i]['Div']); // Push lows to the new array
+            div.push(data[i]['Div']); 
         }
-        console.log('dates:', dates); // Output dates to console
-        console.log('highs:', highs); // Output highs to console
-        console.log('div:', div); // Output lows to console
+        console.log('dates:', dates); 
+        
         var chart = Highcharts.chart('container1', {
             chart: {
                 type: 'areaspline',
@@ -49,7 +48,7 @@
             xAxis: {
                 categories: dates
             },
-            yAxis: [{ // Add new yAxis array
+            yAxis: [{ 
                 title: {
                     text: 'Price'
                 }
@@ -57,49 +56,19 @@
                 title: {
                     text: 'Dividend'
                 },
-                opposite: true // Place on the right side
+                opposite: true 
             }],
             series: [{
                 name: 'Price',
                 data: highs
             }, {
-                name: 'Div', // Add new series for lows
+                name: 'Div',
                 data: div,
-                yAxis: 1, // Assign the new yAxis to this series
-                type: 'line' // Change series type to line
+                yAxis: 1, 
+                type: 'line' 
             }]
             
-        });
-    
-        // Add buttons to filter data by date range
-        var buttons = document.createElement('div');
-        var buttonHTML = '';
-        for (var i = 0; i < 20; i++) {
-        buttonHTML += '<button class="date-range-btn" data-start="' + (dates.length - ((i+1) * 1)) + '" data-end="' + 
-        dates.length + '">Last ' + (i+1) + ' Yr' + (i == 0 ? '' : 's') + '</button>';
-        }
-        buttonHTML += '<button class="date-range-btn" data-start="0" data-end="' + dates.length + '">All</button>';
-        buttons.innerHTML = buttonHTML;
-        document.getElementById('container1').parentNode.insertBefore(buttons, document.getElementById('container1'));
-
-        // Add event listeners to buttons
-        var dateRangeButtons = document.querySelectorAll('.date-range-btn');
-        for (var i = 0; i < dateRangeButtons.length; i++) {
-        dateRangeButtons[i].addEventListener('click', function() {
-            updateData(this.getAttribute('data-start'), this.getAttribute('data-end'));
-        });
-        }
-
-        // Function to update the chart's data based on the selected date range
-        function updateData(startIndex, endIndex) {
-        var filteredDates = dates.slice(startIndex, endIndex);
-        var filteredHighs = highs.slice(startIndex, endIndex);
-        var filteredDiv = div.slice(startIndex, endIndex);
-
-        chart.xAxis[0].setCategories(filteredDates);
-        chart.series[0].setData(filteredHighs);
-        chart.series[1].setData(filteredDiv);
-        }
+        });       
     </script>
     
     
