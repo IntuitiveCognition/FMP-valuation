@@ -16,16 +16,106 @@
     <div id="container1" style="height: 500px"></div>
     <script>
         var yearlydata = {{ chart_json|safe }};
-        console.log('data:', yearlydata); 
+        //console.log('data:', yearlydata);
         var yearlydates = [];
         var yearlyhighs = [];
         var yearlydiv = [];
-         
-        for (var i=0; i<yearlydata.length; i++) {
-            yearlydates.push(yearlydata[i]['Year']);
-            yearlyhighs.push(yearlydata[i]['Price']);
-            yearlydiv.push(yearlydata[i]['Div']); 
+      
+        for (var i = 0; i < yearlydata.length; i++) {
+          yearlydates.push(yearlydata[i]['Year']);
+          yearlyhighs.push(yearlydata[i]['Price']);
+          yearlydiv.push(yearlydata[i]['Div']);
         }
+        var weeklydata = {{ weekly_price|safe }};
+        var weeklyprice = [];
+        var weeklydate = [];
+        for (var i = 0; i < weeklydata.length; i++) {
+          weeklyprice.push(weeklydata[i]['close']);
+          weeklydate.push(weeklydata[i]['date']);
+        }
+        //console.log('weeklyprice:', weeklyprice);
+        var chart = Highcharts.stockChart('container1', {
+          rangeSelector: {
+            selected: 1
+          },
+          title: {
+            text: 'Stock Prices'
+          },
+          yAxis: [{ // y-axis for the yearly and dividend series
+            opposite: true,
+          }, { // y-axis for the weekly series
+            opposite: false,
+            title: {
+              text: 'Weekly Price'
+            }
+          }],
+          series: [{
+            name: 'Yearly',
+            data: yearlyhighs,
+            pointStart: Date.UTC(yearlydates[0], 0, 1),
+            pointInterval: 365 * 24 * 3600 * 1000, // one year in milliseconds,
+            yAxis: 1 // assign this series to the first y-axis
+          }, {
+            name: 'Weekly',
+            data: weeklyprice,
+            pointStart: Date.parse(weeklydate[0]),
+            pointInterval: 7 * 24 * 3600 * 1000, // one week in milliseconds
+            yAxis: 1 // assign this series to the second y-axis
+          }, {
+            name: 'Dividend',
+            data: yearlydiv,
+            pointStart: Date.UTC(yearlydates[0], 0, 1),
+            pointInterval: 365 * 24 * 3600 * 1000, // one year in milliseconds
+            color: 'green',
+            lineWidth: 2,
+            zIndex: 0,
+            marker: {
+              enabled: true
+            },
+            yAxis: 0 // assign this series to the first y-axis
+          }]
+        });
+      
+        // add labels under x-axis
+        chart.renderer.text('Dividend', chart.plotLeft + chart.plotWidth / 2, chart.plotTop + chart.plotHeight + 20)
+          .attr({
+            align: 'center'
+          })
+          .add();
+        chart.renderer.text('$' + yearlydiv[0].toFixed(2), chart.plotLeft, chart.plotTop + chart.plotHeight + 35)
+          .attr({
+            align: 'left'
+          })
+          .add();
+        chart.renderer.text('$' + yearlydiv[yearlydiv.length - 1].toFixed(2), chart.plotLeft + chart.plotWidth, chart.plotTop + chart.plotHeight + 35)
+          .attr({
+            align: 'right'
+          })
+          .add();
+      </script>
+    
+    
+    <div id="container2" style="height: 700px"></div>
+    <script>
+        var data2 = {{ all_annual|safe }} ;
+        var years = [];
+        var price = [];
+        var EPS = [];
+        var dividends = []; // Add new array for dividends
+        var EPSlabel = [];
+        var divlabel = [];
+
+        for (var i=0; i<data2.length; i++) {
+            years.push(data2[i]['calendarYear']);
+            price.push(data2[i]['stockPrice']);
+            EPS.push(data2[i]['eps']);
+            dividends.push(data2[i]['dividend']); // Push dividends to the new array
+            EPSlabel.push(data2[i]['eps']);
+            divlabel.push(data2[i]['dividend']);
+        }
+        console.log('years:', years);
+        console.log('EPSlabel:', EPSlabel);
+        console.log('divlabel:', divlabel);
         var weeklydata = {{ weekly_price|safe }};
         var weeklyprice = [];
         var weeklydate = [];    
@@ -33,65 +123,7 @@
             weeklyprice.push(weeklydata[i]['close']);
             weeklydate.push(weeklydata[i]['date']); 
         }
-        console.log('weeklyprice:', weeklyprice); 
-        var chart = Highcharts.stockChart('container1', {
-            rangeSelector: {
-                selected: 1
-            },
-            title: {
-                text: 'Stock Prices'
-            },
-            yAxis: [{ // y-axis for the yearly and dividend series
-                opposite: true,
-            }, { // y-axis for the weekly series
-                opposite: false,
-                title: {
-                    text: 'Weekly Price'
-                }
-            }],
-            series: [{
-                name: 'Yearly',
-                data: yearlyhighs,
-                pointStart: Date.UTC(yearlydates[0], 0, 1),
-                pointInterval: 365 * 24 * 3600 * 1000, // one year in milliseconds,
-                yAxis: 1 // assign this series to the first y-axis
-            }, {
-                name: 'Weekly',
-                data: weeklyprice,
-                pointStart: Date.parse(weeklydate[0]),
-                pointInterval: 7 * 24 * 3600 * 1000, // one week in milliseconds
-                yAxis: 1 // assign this series to the second y-axis
-            }, {
-                name: 'Dividend',
-                data: yearlydiv,
-                pointStart: Date.UTC(yearlydates[0], 0, 1),
-                pointInterval: 365 * 24 * 3600 * 1000, // one year in milliseconds
-                color: 'green',                
-                lineWidth: 2,
-                zIndex: 0,
-                marker:{
-                    enabled: true
-                },
-                yAxis: 0 // assign this series to the first y-axis
-            }]
-        });      
-    </script> 
-    
-    
-    <div id="container2" style="height: 500px"></div>
-    <script>
-        var data2 = {{ all_annual|safe }} ;
-        var years = [];
-        var price = [];
-        var EPS = [];
-        var dividends = []; // Add new array for dividends
-        for (var i=0; i<data2.length; i++) {
-            years.push(data2[i]['calendarYear']);
-            price.push(data2[i]['stockPrice']);
-            EPS.push(data2[i]['eps']);
-            dividends.push(data2[i]['dividend']); // Push dividends to the new array
-        }
-        
+
         var chart2 = Highcharts.chart('container2', {
             chart: {
                 type: 'line',
@@ -113,6 +145,11 @@
             plotOptions: {
             series: {
                 showInNavigator: true
+            },
+            line: {
+                dataLabels: {
+                enabled: false
+                }
             }
              }, 
             credits: {
@@ -122,27 +159,33 @@
                 text: 'Valuation {{ ticker }}'
             },
             xAxis: {
-                categories: years,
-                
-                labels: {
-                    formatter: function() {
-                        var divIndex = years.indexOf(this.value);
-                        var divValue = dividends[divIndex];
-                        var epsValue = EPS[divIndex];
-                        var str = '<span style="font-size: 12px;">' + this.value + '</span><br/>';
-                        if (divValue) {
-                            str += '<span style="font-size: 10px; color: #666;">DIV: ' + divValue + '</span><br/>';
-                        } else {
-                            str += '<span style="font-size: 10px; color: #666;">DIV: 0</span><br/>'; // Return zero if no dividend
-                        }
-                        if (epsValue) {
-                            str += '<span style="font-size: 10px; color: #666;">EPS: ' + epsValue + '</span>';
-                        } else {
-                            str += '<span style="font-size: 10px; color: #666;">EPS: 0</span>'; // Return zero if no EPS
-                        }
-                        return str;
-                    }
+            categories: years,
+            type: 'datetime',
+            units: [['year', [1]]],
+            labels: {
+                format: '{value:%Y-%b-%e}',
+                formatter: function() {
+                var year = Highcharts.dateFormat('%Y', this.value);
+                var yearIndex = years.indexOf(year);
+                var divValue = divlabel[yearIndex];
+                var epsValue = EPSlabel[yearIndex];
+                console.log('yearIndex:', yearIndex);
+                console.log('divValue:', divValue);
+                console.log('epsValue:', epsValue);
+                var str = '<span style="font-size: 10px;">' + Highcharts.dateFormat('%Y',this.value) + '</span><br/>';
+                if (divValue !== undefined) {
+                    str += '<span style="font-size: 10px; color: #666;">DIV: ' + divValue + '</span><br/>';
+                } else {
+                    str += '<span style="font-size: 10px; color: #666;">DIV: N/A</span><br/>';
                 }
+                if (epsValue !== undefined) {
+                    str += '<span style="font-size: 10px; color: #666;">EPS: ' + epsValue + '</span>';
+                } else {
+                    str += '<span style="font-size: 10px; color: #666;">EPS: N/A</span>';
+                }
+                return str;
+                }
+            }
             },
             yAxis: [{ 
                 title: {
@@ -155,17 +198,10 @@
                 opposite: true
             }],
             series: [{
-                name: 'stockPrice',
-                data: price,
-                color: 'black',                
-                lineWidth: 2,
-                zIndex: 1,
-                marker:{
-                    enabled: false
-                }
-            }, {
                 name: 'EPS',
                 data: EPS,
+                pointStart: Date.parse(years[0] + '-01-01'),
+                pointInterval: 365.25 * 24 * 3600 * 1000,
                 yAxis: 1,
                 type: 'area',
                 color: '#54824f',
@@ -178,9 +214,24 @@
                 },
                 lineWidth: 3,
                 lineColor: '#fc5e03'
-            }, {
+            },{
+                name: 'Weekly',
+                data: weeklyprice,
+                type: 'line',
+                color: 'black',
+                zIndex: 1,
+                pointStart: Date.parse(weeklydate[0]),
+                pointInterval: 7 * 24 * 3600 * 1000, // one week in milliseconds
+                yAxis: 0, // assign this series to the second y-axis
+                labels: {
+                    enabled: false
+                }
+            },{
                 name: 'Dividend',
                 data: dividends,
+                pointStart: Date.parse(years[0] + '-01-01'),
+                pointInterval: 365.25 * 24 * 3600 * 1000,
+                yAxis: 1,
                 color: 'white',                
                 lineWidth: 2,
                 zIndex: 1,
@@ -214,11 +265,13 @@
         var filteredPrice = price.slice(startIndex, endIndex);
         var filteredEPS = EPS.slice(startIndex, endIndex);
         var filteredDividends = dividends.slice(startIndex, endIndex);
+        var filteredweeklyprice = weeklyprice.slice(startIndex, endIndex);
 
         chart2.xAxis[0].setCategories(filteredYears);
         chart2.series[0].setData(filteredPrice);
         chart2.series[1].setData(filteredEPS);
         chart2.series[2].setData(filteredDividends);
+        chart2.series[2].setData(filteredweeklyprice);
         }        
     </script>
     
@@ -226,4 +279,3 @@
     
 </body>
 </html>
-
