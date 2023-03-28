@@ -121,12 +121,54 @@
             weeklyprice.push(weeklydata[i]['close']);
             weeklydate.push(weeklydata[i]['date']); 
         }
+        var rangeButtons = [];
+        for (var i = 1; i <= 20; i++) {
+        rangeButtons.push({
+            type: 'year',
+            count: i,
+            text: i + 'y'
+        });
+        }
 
-        var chart2 = Highcharts.chart('container2', {
+        var chart2 = Highcharts.stockChart('container2', {
             chart: {
                 type: 'line',
                 zoomType: 'x',
                 backgroundColor: '#f5f5f5'
+            },
+            rangeSelector: {
+                buttonTheme: {
+                width: 52,
+                height: 20,
+                fill: '#f0ce95',
+                stroke: '#aaa',
+                'stroke-width': 1,
+                style: {
+                    color: '#333',
+                    fontWeight: 'bold'
+                },
+                states: {
+                    hover: {
+                    fill: '#e6e6e6',
+                    stroke: '#aaa',
+                    'stroke-width': 1,
+                    style: {
+                        color: '#333',
+                        fontWeight: 'normal'
+                    }
+                    },
+                    select: {
+                    fill: '#428bca',
+                    stroke: '#428bca',
+                    'stroke-width': 1,
+                    style: {
+                        color: '#fff',
+                        fontWeight: 'normal'
+                    }
+                    }
+                }
+                },
+                buttons: rangeButtons
             },
             tooltip: {
                 animation: false,
@@ -154,7 +196,7 @@
                 enabled: false
             },
             title: {
-                text: 'Valuation {{ ticker }}'
+                text: '<span style="font-size: 20px; color: #050300;">{{ ticker }} Valuation </span>'
             },
             xAxis: {
             categories: years,
@@ -167,14 +209,14 @@
                 var yearIndex = years.indexOf(year);
                 var divValue = divlabel[yearIndex];
                 var epsValue = EPSlabel[yearIndex];
-                var str = '<span style="font-size: 10px;">' + Highcharts.dateFormat('%Y',this.value) + '</span><br/>';
+                var str = '<span style="font-size: 10px; color: #050300;">' + Highcharts.dateFormat('%Y',this.value) + '</span><br/>';
                 if (divValue !== undefined) {
-                    str += '<span style="font-size: 10px; color: #666;">DIV: ' + divValue + '</span><br/>';
+                    str += '<span style="font-size: 10px; color: #050300;">DIV: ' + divValue + '</span><br/>';
                 } else {
                     str += '<span style="font-size: 10px; color: #666;">DIV: N/A</span><br/>';
                 }
                 if (epsValue !== undefined) {
-                    str += '<span style="font-size: 10px; color: #666;">EPS: ' + epsValue + '</span>';
+                    str += '<span style="font-size: 10px; color: #050300;">EPS: ' + epsValue + '</span>';
                 } else {
                     str += '<span style="font-size: 10px; color: #666;">EPS: N/A</span>';
                 }
@@ -185,7 +227,8 @@
             yAxis: [{ 
                 title: {
                     text: 'Price'
-                }
+                },
+                opposite: false
             }, {
                 title: {
                     text: 'EPS'
@@ -235,44 +278,7 @@
                 }
             }]
         });
-        // Add buttons to filter data by date range
-        var buttons2 = document.createElement('div');
-        var buttonHTML2 = '';
-        for (var i = 0; i < 20; i++) {
-        buttonHTML2 += '<button class="date-range-btn" data-start="' + (years.length - ((i+1) * 1)) + '" data-end="' + 
-        years.length + '">Last ' + (i+1) + ' Yr' + (i == 0 ? '' : 's') + '</button>';
-        }
-        buttonHTML2 += '<button class="date-range-btn" data-start="0" data-end="' + years.length + '">All</button>';
-        buttons2.innerHTML = buttonHTML2;
-        document.getElementById('container2').parentNode.insertBefore(buttons2, document.getElementById('container2'));
-
-        // Add event listeners to buttons
-        var dateRangeButtons2 = document.querySelectorAll('.date-range-btn');
-        for (var i = 0; i < dateRangeButtons2.length; i++) {
-        dateRangeButtons2[i].addEventListener('click', function() {
-            updateData(this.getAttribute('data-start'), this.getAttribute('data-end'));
-        });
-        }
-
-        function updateData(startIndex, endIndex) {
-            var filteredYears = years.slice(startIndex, endIndex);
-            var filteredPrice = price.slice(startIndex, endIndex);
-            var filteredEPS = EPS.slice(startIndex, endIndex);
-            var filteredDividends = dividends.slice(startIndex, endIndex);
-            var filteredWeeklyPrice = weeklyprice.filter(function (price, index) {
-                // Calculate the year of the current data point
-                var year = new Date(weeklydate[index]).getFullYear();
-                // Check if the year of the current data point is within the selected date range
-                return year >= filteredYears[0] && year <= filteredYears[filteredYears.length - 1];
-            });
-
-            chart2.xAxis[0].setCategories(filteredYears);
-            chart2.series[0].setData(filteredPrice);
-            chart2.series[1].setData(filteredEPS);
-            chart2.series[2].setData(filteredDividends);
-            chart2.series[1].setData(filteredWeeklyPrice);
-        }
-        
+                
     </script>
     
 </body>
