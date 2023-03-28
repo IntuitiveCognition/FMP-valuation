@@ -113,9 +113,7 @@
             EPSlabel.push(data2[i]['eps']);
             divlabel.push(data2[i]['dividend']);
         }
-        console.log('years:', years);
-        console.log('EPSlabel:', EPSlabel);
-        console.log('divlabel:', divlabel);
+        //console.log('years:', years);
         var weeklydata = {{ weekly_price|safe }};
         var weeklyprice = [];
         var weeklydate = [];    
@@ -169,9 +167,6 @@
                 var yearIndex = years.indexOf(year);
                 var divValue = divlabel[yearIndex];
                 var epsValue = EPSlabel[yearIndex];
-                console.log('yearIndex:', yearIndex);
-                console.log('divValue:', divValue);
-                console.log('epsValue:', epsValue);
                 var str = '<span style="font-size: 10px;">' + Highcharts.dateFormat('%Y',this.value) + '</span><br/>';
                 if (divValue !== undefined) {
                     str += '<span style="font-size: 10px; color: #666;">DIV: ' + divValue + '</span><br/>';
@@ -259,23 +254,26 @@
         });
         }
 
-        // Function to update the chart's data based on the selected date range
         function updateData(startIndex, endIndex) {
-        var filteredYears = years.slice(startIndex, endIndex);
-        var filteredPrice = price.slice(startIndex, endIndex);
-        var filteredEPS = EPS.slice(startIndex, endIndex);
-        var filteredDividends = dividends.slice(startIndex, endIndex);
-        var filteredweeklyprice = weeklyprice.slice(startIndex, endIndex);
+            var filteredYears = years.slice(startIndex, endIndex);
+            var filteredPrice = price.slice(startIndex, endIndex);
+            var filteredEPS = EPS.slice(startIndex, endIndex);
+            var filteredDividends = dividends.slice(startIndex, endIndex);
+            var filteredWeeklyPrice = weeklyprice.filter(function (price, index) {
+                // Calculate the year of the current data point
+                var year = new Date(weeklydate[index]).getFullYear();
+                // Check if the year of the current data point is within the selected date range
+                return year >= filteredYears[0] && year <= filteredYears[filteredYears.length - 1];
+            });
 
-        chart2.xAxis[0].setCategories(filteredYears);
-        chart2.series[0].setData(filteredPrice);
-        chart2.series[1].setData(filteredEPS);
-        chart2.series[2].setData(filteredDividends);
-        chart2.series[2].setData(filteredweeklyprice);
-        }        
+            chart2.xAxis[0].setCategories(filteredYears);
+            chart2.series[0].setData(filteredPrice);
+            chart2.series[1].setData(filteredEPS);
+            chart2.series[2].setData(filteredDividends);
+            chart2.series[1].setData(filteredWeeklyPrice);
+        }
+        
     </script>
-    
-
     
 </body>
 </html>
