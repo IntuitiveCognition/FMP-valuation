@@ -92,26 +92,25 @@
             align: 'right'
           })
           .add();
-      </script>
+      </script>    
     
-    
-    <div id="container2" style="height: 700px"></div>
+    <div id="container2" style="height: 700px"></div>    
     <script>
-        var data2 = {{ all_annual|safe }} ;
+        var data2 = {{ all_annual|safe }};
         var years = [];
         var price = [];
         var EPS = [];
-        var dividends = []; // Add new array for dividends
+        var dividends = []; 
         var EPSlabel = [];
         var divlabel = [];
-
+        console.log('EPSlabel:', EPSlabel);
         for (var i=0; i<data2.length; i++) {
             years.push(data2[i]['calendarYear']);
             price.push(data2[i]['stockPrice']);
             EPS.push(data2[i]['eps']);
-            dividends.push(data2[i]['dividend']); // Push dividends to the new array
-            EPSlabel.push(data2[i]['eps']);
+            dividends.push(data2[i]['dividend']); 
             divlabel.push(data2[i]['dividend']);
+            EPSlabel.push(data2[i]['eps']);
         }
         //console.log('years:', years);
         var weeklydata = {{ weekly_price|safe }};
@@ -209,6 +208,7 @@
                 var yearIndex = years.indexOf(year);
                 var divValue = divlabel[yearIndex];
                 var epsValue = EPSlabel[yearIndex];
+                console.log('epsValue:', epsValue);
                 var str = '<span style="font-size: 10px; color: #050300;">' + Highcharts.dateFormat('%Y',this.value) + '</span><br/>';
                 if (divValue !== undefined) {
                     str += '<span style="font-size: 10px; color: #050300;">DIV: ' + divValue + '</span><br/>';
