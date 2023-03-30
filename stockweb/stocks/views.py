@@ -43,14 +43,14 @@ def ticker(request, tid):#view for ticker.html
 def graphindex(request):
     if request.method == 'POST':
         formsg = forms.GraphForm(request.POST)
-        print("here now")
+        
         if formsg.is_valid():
             ticker = request.POST['graphticker']
             print(ticker)
             return HttpResponseRedirect(ticker)#this redirects to a ticker.html but names is by the ticker symbol entered into form
     else:
         formsg = forms.GraphForm()
-        print('printing form')
+        
     return render(request, 'graphtick.html', {'formsg': formsg})
 
 def graphticker(request,tid):
