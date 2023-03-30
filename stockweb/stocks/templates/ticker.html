@@ -74,24 +74,8 @@
             },
             yAxis: 0 // assign this series to the first y-axis
           }]
-        });
-      
-        // add labels under x-axis
-        chart.renderer.text('Dividend', chart.plotLeft + chart.plotWidth / 2, chart.plotTop + chart.plotHeight + 20)
-          .attr({
-            align: 'center'
-          })
-          .add();
-        chart.renderer.text('$' + yearlydiv[0].toFixed(2), chart.plotLeft, chart.plotTop + chart.plotHeight + 35)
-          .attr({
-            align: 'left'
-          })
-          .add();
-        chart.renderer.text('$' + yearlydiv[yearlydiv.length - 1].toFixed(2), chart.plotLeft + chart.plotWidth, chart.plotTop + chart.plotHeight + 35)
-          .attr({
-            align: 'right'
-          })
-          .add();
+        });  
+        
       </script>    
     
     <div id="container2" style="height: 700px"></div>    
@@ -99,7 +83,7 @@
         var data2 = {{ all_annual|safe }};
         var years = [];
         var price = [];
-        var EPS = [];
+        //var EPS = [];
         var dividends = []; 
         var EPSlabel = [];
         var divlabel = [];
@@ -107,11 +91,19 @@
         for (var i=0; i<data2.length; i++) {
             years.push(data2[i]['calendarYear']);
             price.push(data2[i]['stockPrice']);
-            EPS.push(data2[i]['eps']);
+            //EPS.push(data2[i]['eps']);
             dividends.push(data2[i]['dividend']); 
             divlabel.push(data2[i]['dividend']);
             EPSlabel.push(data2[i]['eps']);
         }
+        var quarterdata = {{ all_quarter|safe }};
+        var quarter_eps = [];
+        //var quarter_eps_start = quarterdata[0]['date']    
+        for (var i=0; i<quarterdata.length; i++) {
+            quarter_eps.push(quarterdata[i]['eps']);
+             
+        }
+        console.log('quarter_eps:', quarter_eps);
         //console.log('years:', years);
         var weeklydata = {{ weekly_price|safe }};
         var weeklyprice = [];
@@ -237,9 +229,9 @@
             }],
             series: [{
                 name: 'EPS',
-                data: EPS,
-                pointStart: Date.parse(years[0] + '-01-01'),
-                pointInterval: 365.25 * 24 * 3600 * 1000,
+                data: quarter_eps,
+                pointStart: Date.parse(quarterdata[0]['date']),
+                pointInterval: 365.25 / 4 * 24 * 3600 * 1000,
                 yAxis: 1,
                 type: 'area',
                 color: '#54824f',

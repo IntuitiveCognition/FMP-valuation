@@ -46,4 +46,5 @@ def get_all_quarter(symbol,latest10Q_date):
     #merged_df['dividend'] = abs((merged_df.dividendsPaid / merged_df.numberOfShares).round(2))
     merged_df = merged_df.iloc[::-1]
     merged_df = merged_df.fillna(0)
-    return merged_df
+    all_quarter = merged_df.to_dict(orient='records')
+    return all_quarter
