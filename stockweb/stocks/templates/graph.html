@@ -2,9 +2,120 @@
 <html lang="en">
 <head>
     <title>Ticker</title>
+    
+    <script src="http://code.highcharts.com/stock/highstock.js"></script>
+    <script src="http://code.highcharts.com/modules/exporting.js"></script>
 
 </head>
 <body>
-{{ ticker }}
+    <div id="container1" style="height: 500px"></div>
+    <div id="container1"></div>
+    <li class="nav-item">
+      <a class="nav-link active" aria-current="page" href="/stocks/">Home</a>
+    </li>
+
+    <script>
+      var weeklydata = {{ weekly_price|safe }};
+      var weeklyprice = [];
+
+      for (var i = 0; i < weeklydata.length; i++) {
+        weeklyprice.push([
+          new Date(weeklydata[i]['date']).getTime(),
+          weeklydata[i]['close']
+        ]);
+      }
+      var quarterlydata = {{ all_quarter|safe }};
+      console.log('quarterlydata:', quarterlydata);
+      var totalperatio = 0;
+      var peRatioThreshold = 100; // set a threshold for acceptable peRatio values
+      var filteredData = quarterlydata.map(function(quarter) {
+        if (quarter['peRatio'] <= 0) {
+          quarter['peRatio'] = 0; // replace negative or zero peRatio with 0
+        } else if (quarter['peRatio'] >= peRatioThreshold) {
+          quarter['peRatio'] = peRatioThreshold; // replace high peRatio with threshold value (100)
+        }
+        return quarter;
+      }).filter(function(quarter) {
+        return quarter['peRatio'] > 0;
+      });
+      for (var i = 0; i < filteredData.length; i++) {
+        totalperatio += filteredData[i]['peRatio'];
+      }
+      console.log('filteredData:', filteredData);
+      console.log('totalperatio:', totalperatio);
+      var avgPeRatio = (totalperatio / filteredData.length)*4;
+      console.log('avgPeRatio:', avgPeRatio);
+
+      var quarterlyeps = [];
+
+      // Calculate initial EMA using the first 6 quarters
+      var ema = 0;
+      for (var i = 0; i < 6; i++) {
+        ema += quarterlydata[i]['eps'] * avgPeRatio;
+      }
+      ema /= 6;
+      quarterlyeps.push([  new Date(quarterlydata[5]['date']).getTime(),
+        ema
+      ]);
+
+      // Calculate subsequent EMAs using a smoothing factor of 0.2
+      for (var i = 6; i < quarterlydata.length; i++) {
+        ema = 0.225 * quarterlydata[i]['eps'] * avgPeRatio + 0.8 * ema;
+        quarterlyeps.push([    new Date(quarterlydata[i]['date']).getTime(),
+          ema
+        ]);
+      }
+      console.log('quarterlyeps:', quarterlyeps);
+      Highcharts.stockChart('container1', {
+        rangeSelector: {
+          selected: 5
+        },
+
+        title: {
+          text: 'AAPL Stock Price'
+        },
+        yAxis: [{
+          opposite: false,
+          title: {
+            text: 'PRICE',
+            align: 'high',
+            rotation: 90,
+            offset: 30,
+            
+          }
+        }],
+        series: [{
+            name: 'EPS',
+            data: quarterlyeps,
+            type: 'area',
+            threshold: null,
+            opposite: false,
+            tooltip: {
+              valueDecimals: 2
+            },
+            fillColor: {
+              linearGradient: {
+                x1: 0,
+                y1: 0,
+                x2: 0,
+                y2: 1
+              },
+              stops: [
+                [0, Highcharts.getOptions().colors[0]],
+                [1, Highcharts.color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+              ]
+            }
+          },
+          {
+            name: 'Price',
+            data: weeklyprice,
+            type: 'line',
+            tooltip: {
+              valueDecimals: 2
+            }
+          }
+        ]
+      });
+    </script>
 </body>
 </html>

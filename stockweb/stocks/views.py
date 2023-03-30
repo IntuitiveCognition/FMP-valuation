@@ -54,7 +54,13 @@ def graphindex(request):
     return render(request, 'graphtick.html', {'formsg': formsg})
 
 def graphticker(request,tid):
-    ticker = tid
-    return render(request, 'graph.html', {'ticker': ticker})
+    latest10Q_date = functions.get_quarter_date(tid)
+    weekly_price = functions.get_weekly_price(tid)
+    all_quarter = allquarter.get_all_quarter(tid,latest10Q_date)
+    context ={}
+    
+    context['weekly_price'] = weekly_price
+    context['all_quarter'] = all_quarter
+    return render(request, 'graph.html', context)
 
  
