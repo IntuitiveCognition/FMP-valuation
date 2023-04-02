@@ -1,0 +1,21 @@
+body {
+    background-color: rgb(229, 229, 231);
+}
+
+.ok{
+    color: rgb(211, 17, 10);
+}
+
+#container1 {
+    width: 80%;
+    height: 500px;
+    float: left;
+    background-color: lightgray;
+}
+  /* Create a container for container2 and set its width to 20% of the screen */
+#container2 {
+width: 20%;
+height: 500px;
+float: left;
+background-color: lightgray;
+}

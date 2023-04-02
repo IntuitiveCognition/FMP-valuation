@@ -13,7 +13,8 @@
     <h3>Price: {{ quote.price }}</h3>
     {{ table|safe }}
     
-    <div id="container1" style="height: 500px"></div>
+    <div id="container1" style="height: 500px; width: 80%;"></div>
+
     <script>
         var yearlydata = {{ chart_json|safe }};
         //console.log('data:', yearlydata);

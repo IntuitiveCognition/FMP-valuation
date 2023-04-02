@@ -1,15 +1,19 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Ticker</title>
-    
+    <title>Ticker</title>    
     <script src="http://code.highcharts.com/stock/highstock.js"></script>
     <script src="http://code.highcharts.com/modules/exporting.js"></script>
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/graph.css' %}">
 
 </head>
 <body>
-    <div id="container1" style="height: 500px"></div>
+    
+    
     <div id="container1"></div>
+    <div id="container2"></div>
     <li class="nav-item">
       <a class="nav-link active" aria-current="page" href="/stocks/">Home</a>
     </li>
@@ -41,6 +45,7 @@
       for (var i = 0; i < filteredData.length; i++) {
         totalperatio += filteredData[i]['peRatio'];
       }
+      
       console.log('filteredData:', filteredData);
       console.log('totalperatio:', totalperatio);
       var avgPeRatio = (totalperatio / filteredData.length)*4;
@@ -57,7 +62,7 @@
       quarterlyeps.push([  new Date(quarterlydata[5]['date']).getTime(),
         ema
       ]);
-
+      console.log('quarterlyeps:', quarterlyeps);
       // Calculate subsequent EMAs using a smoothing factor of 0.2
       for (var i = 6; i < quarterlydata.length; i++) {
         ema = 0.225 * quarterlydata[i]['eps'] * avgPeRatio + 0.8 * ema;
@@ -65,14 +70,33 @@
           ema
         ]);
       }
-      console.log('quarterlyeps:', quarterlyeps);
+      var priceextension = {{ future_eps|safe }};
+      var normalpe = avgPeRatio/4
+      var adjustpriceextension = priceextension.map(x => {
+        return { date: x.date, futureeps: (x.futureeps * normalpe).toFixed(2) };
+      });
+      var lastElement = quarterlydata[quarterlydata.length - 1];
+      var quarterlastdate = new Date(lastElement['date']).getTime();
+      var symbol = lastElement['symbol']
+
+      var finalpriceextension = adjustpriceextension.map(({ date, futureeps }) => [
+        new Date(date).getTime(),
+        parseFloat(futureeps)
+      ]).filter(function(price) {
+        return price[0] >= quarterlastdate;
+      });
+      
+      console.log('quarterlastdate:', quarterlastdate);
+      console.log('finalpriceextension:', finalpriceextension);
+      
+      Highcharts.setOptions({ debug: true });
       Highcharts.stockChart('container1', {
         rangeSelector: {
           selected: 5
         },
 
         title: {
-          text: 'AAPL Stock Price'
+          text: symbol + ' Stock Price'
         },
         yAxis: [{
           opposite: false,
@@ -110,10 +134,19 @@
             name: 'Price',
             data: weeklyprice,
             type: 'line',
+            zIndex: 1,
             tooltip: {
               valueDecimals: 2
             }
-          }
+          },
+          {
+            name: 'Price',
+            data: finalpriceextension,
+            type: 'area',
+            tooltip: {
+              valueDecimals: 2
+            }
+          },
         ]
       });
     </script>

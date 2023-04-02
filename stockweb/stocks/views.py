@@ -54,13 +54,16 @@ def graphindex(request):
     return render(request, 'graphtick.html', {'formsg': formsg})
 
 def graphticker(request,tid):
+    
     latest10Q_date = functions.get_quarter_date(tid)
     weekly_price = functions.get_weekly_price(tid)
     all_quarter = allquarter.get_all_quarter(tid,latest10Q_date)
+    future_eps = functions.get_marketwatch_yearly_est(tid)
     context ={}
     
     context['weekly_price'] = weekly_price
     context['all_quarter'] = all_quarter
+    context['future_eps'] = future_eps
     return render(request, 'graph.html', context)
 
  

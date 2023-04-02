@@ -4,6 +4,7 @@ import os
 import json
 import pandas as pd
 from datetime import datetime
+from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 #### Holds functions to retreive data ###
 api = "c0125052bc240a2359979dc2de79eb99"
@@ -246,4 +247,67 @@ def get_weekly_price(symbol):
     price_df = price_df.to_dict(orient='records')
     return price_df
 
+def get_marketwatch_yearly_est(symbol):
+    global marketyearest_df
+    global marketyearest 
+    global data
+    now = datetime.now()
+    today = now.strftime("%Y-%m-%d")
+    #verifies if latest quarter ratio  has been downloaded, else downloads latest
+    filePath =  (f"E:/astockwebsite/{symbol}/{symbol}{today}marketyearest/{symbol}{today}marketyearest.json")
+    if os.path.isfile(filePath):
+        with open(f"{filePath}", 'r') as f:
+            marketyearest = json.load(f)
+        print('marketwatchest value File already exists, returning file to you')
+        
+    else:    
+        Path(f"E:/astockwebsite/{symbol}/{symbol}{today}marketyearest").mkdir(parents=True, exist_ok=True)
+        marketyearest_df = pd.read_html(f'https://www.marketwatch.com/investing/stock/{symbol}/analystestimates?mod=mw_quote_tab')
+        marketyearest_df = marketyearest_df[6]
+        market = marketyearest_df.T
+        market = market.rename(columns=market.iloc[0])
+        market = market.drop(index=market.index[0])
+        market = market.drop(columns=['High', 'Low'])
+        market = market.reset_index()
+        market = market.rename(columns={'index': 'date', 'Average': 'futureeps'})
+        market = market.to_dict(orient='records')
+        with open(filePath, 'a') as fp:
+            json.dump(market, fp)
+        with open(f"{filePath}", 'r') as f:
+            marketyearest = json.load(f)
+        print('Quarter enterprise value File does not exist, will create file and return to you.')
+    # Takes 4 year data points and turns it into 16 quarterly points equally spaced
+    new_data = []
+    for d in marketyearest:
+        year = int(d['date'])
+        date_str = f"{year}-12-31"
+        date = datetime.strptime(date_str, "%Y-%m-%d").date()
+        new_data.append({'date': date.strftime('%Y-%m-%d'), 'futureeps': d['futureeps']})
+
+        for i in range(1, 53):
+            prev_date = date - timedelta(days=7*i)
+            prev_eps = d['futureeps'] - (d['futureeps'] - new_data[-1]['futureeps'])/52.0*i
+            new_data.append({'date': prev_date.strftime('%Y-%m-%d'), 'futureeps': prev_eps})
+
+    data = sorted(new_data, key=lambda x: x['date'])
+    indices = [i for i, d in enumerate(data) if d['date'].endswith('-12-31')]
+
+    # Loop through the indices, updating the values in between
+    for i in range(len(indices)-1):
+        start_index = indices[i]
+        end_index = indices[i+1]
+        start_value = data[start_index]['futureeps']
+        end_value = data[end_index]['futureeps']
+        num_values = end_index - start_index - 1
+        if num_values > 0:
+            step = (end_value - start_value) / (num_values + 1)
+        else:
+            step = 0
+
+        # Fix erroneous jump in the last week of each year
+        for j in range(1, num_values+1):
+            if data[start_index+j]['date'].endswith('-12-31'):
+                continue
+            data[start_index+j]['futureeps'] = round(start_value + j*step, 2)
+    return data
 
