@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
-
 from . import forms
 from . import fmp
 from . import financedata
@@ -8,6 +7,7 @@ from . import functions
 from . import chartdata
 from . import allannual
 from . import allquarter 
+
 # Create your views here.
 def index(request):
     if request.method == 'POST':#from index.html if form submitted

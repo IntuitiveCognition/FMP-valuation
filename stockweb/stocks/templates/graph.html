@@ -55,7 +55,7 @@
 
       // Calculate initial EMA using the first 6 quarters
       var ema = 0;
-      for (var i = 0; i < 6; i++) {
+      for (var i = 0; i < 8; i++) {
         ema += quarterlydata[i]['eps'] * avgPeRatio;
       }
       ema /= 6;
@@ -65,7 +65,7 @@
       console.log('quarterlyeps:', quarterlyeps);
       // Calculate subsequent EMAs using a smoothing factor of 0.2
       for (var i = 6; i < quarterlydata.length; i++) {
-        ema = 0.225 * quarterlydata[i]['eps'] * avgPeRatio + 0.8 * ema;
+        ema = 0.22 * quarterlydata[i]['eps'] * avgPeRatio + 0.8 * ema;
         quarterlyeps.push([    new Date(quarterlydata[i]['date']).getTime(),
           ema
         ]);

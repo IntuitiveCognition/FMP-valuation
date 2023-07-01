@@ -14,8 +14,8 @@ body {
 }
   /* Create a container for container2 and set its width to 20% of the screen */
 #container2 {
-width: 20%;
-height: 500px;
-float: left;
-background-color: lightgray;
+    width: 20%;
+    height: 500px;
+    float: left;
+    background-color: lightgray;
 }
