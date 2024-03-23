@@ -1,0 +1,25 @@
+# Calculate the PPS signals
+def buySignal = PPS().buySignal;
+def sellSignal = PPS().sellSignal;
+
+# MA crossover
+
+input fastLength = 7;
+input slowLength = 21;
+
+def fastMA = Average(close, fastLength);
+def slowMA = Average(close, slowLength);
+
+def crossover = fastMA > slowMA and fastMA[1] <= slowMA[1];
+def crossunder = fastMA < slowMA and fastMA[1] >= slowMA[1];
+
+
+def buySignal = PPS().buySignal;
+def sellSignal = PPS().sellSignal;
+
+
+
+def barsSinceCrossover = if buySignal or sellSignal then 0 else barsSinceCrossover[1] + 1;
+
+AddLabel(yes, if buySignal then "" + barsSinceCrossover else if sellSignal then "" + barsSinceCrossover else "", 
+if buySignal then Color.GREEN else if sellSignal then Color.RED else Color.CURRENT);

@@ -40,25 +40,37 @@ def ticker(request, tid):#view for ticker.html
     context['all_quarter'] = all_quarter
     return render(request, 'ticker.html', context)
 
+# def graphindex(request):
+#     if request.method == 'POST':
+#         formsg = forms.GraphForm(request.POST)
+        
+#         if formsg.is_valid():
+#             ticker = request.POST['graphticker']
+#             print(ticker)
+#             return HttpResponseRedirect(ticker)#this redirects to a ticker.html but names is by the ticker symbol entered into form
+#     else:
+#         formsg = forms.GraphForm()
+        
+#     return render(request, 'graphtick.html', {'formsg': formsg})
+
 def graphindex(request):
     if request.method == 'POST':
         formsg = forms.GraphForm(request.POST)
-        
         if formsg.is_valid():
-            ticker = request.POST['graphticker']
-            print(ticker)
-            return HttpResponseRedirect(ticker)#this redirects to a ticker.html but names is by the ticker symbol entered into form
+            ticker = formsg.cleaned_data['graphticker']
+            return HttpResponseRedirect(f'/stocks/graphs/{ticker}/')  # Redirect to the graphticker view with the ticker
     else:
         formsg = forms.GraphForm()
-        
+
     return render(request, 'graphtick.html', {'formsg': formsg})
+
 
 def graphticker(request,tid):
     
     latest10Q_date = functions.get_quarter_date(tid)
     weekly_price = functions.get_weekly_price(tid)
     all_quarter = allquarter.get_all_quarter(tid,latest10Q_date)
-    future_eps = functions.get_marketwatch_yearly_est(tid)
+    future_eps = functions.get_nasdaq_yearly_est(tid)
     context ={}
     
     context['weekly_price'] = weekly_price

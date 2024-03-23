@@ -6,6 +6,11 @@ import pandas as pd
 from datetime import datetime
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service
+from selenium import webdriver
+
+
 #### Holds functions to retreive data ###
 api = "c0125052bc240a2359979dc2de79eb99"
 def get_annual_date(symbol):
@@ -247,38 +252,47 @@ def get_weekly_price(symbol):
     price_df = price_df.to_dict(orient='records')
     return price_df
 
-def get_marketwatch_yearly_est(symbol):
-    global marketyearest_df
-    global marketyearest 
+def get_nasdaq_yearly_est(symbol):
     global data
     now = datetime.now()
     today = now.strftime("%Y-%m-%d")
     #verifies if latest quarter ratio  has been downloaded, else downloads latest
-    filePath =  (f"E:/astockwebsite/{symbol}/{symbol}{today}marketyearest/{symbol}{today}marketyearest.json")
+    filePath =  (f"E:/astockwebsite/{symbol}/{symbol}{today}nasdaq/{symbol}{today}nasdaq.json")
     if os.path.isfile(filePath):
         with open(f"{filePath}", 'r') as f:
-            marketyearest = json.load(f)
-        print('marketwatchest value File already exists, returning file to you')
+            nasdaq = json.load(f)
+        print('Nasdaq EPS Estimate File already exists, returning file to you')
         
     else:    
-        Path(f"E:/astockwebsite/{symbol}/{symbol}{today}marketyearest").mkdir(parents=True, exist_ok=True)
-        marketyearest_df = pd.read_html(f'https://www.marketwatch.com/investing/stock/{symbol}/analystestimates?mod=mw_quote_tab')
-        marketyearest_df = marketyearest_df[6]
-        market = marketyearest_df.T
-        market = market.rename(columns=market.iloc[0])
-        market = market.drop(index=market.index[0])
-        market = market.drop(columns=['High', 'Low'])
-        market = market.reset_index()
-        market = market.rename(columns={'index': 'date', 'Average': 'futureeps'})
-        market = market.to_dict(orient='records')
+        Path(f"E:/astockwebsite/{symbol}/{symbol}{today}nasdaq").mkdir(parents=True, exist_ok=True)
+        service = Service('./chromedriver')
+        driver = webdriver.Chrome(service=service)
+        url = f'https://www.nasdaq.com/market-activity/stocks/{symbol}/earnings'
+        driver.get(url)
+        table = driver.find_element('xpath', '//table[@class="earnings-forecast__table"]')
+        headers = [th.text for th in table.find_elements('xpath', './thead//th')]
+        data = []
+        for row in table.find_elements('xpath', './tbody//tr'):
+            row_data = [td.text for td in row.find_elements('xpath', './/th|.//td')]
+            data.append(row_data)
+
+        driver.quit()
+        df = pd.DataFrame(data, columns=headers)
+        result = []
+        for index, row in df.iterrows():
+            futureeps = row['Consensus EPS* Forecast']
+            date_str = str(row['Fiscal Year End'])
+            year = ''.join(filter(str.isdigit, date_str))
+            if year:
+                result.append({'date': year, 'futureeps': float(futureeps)})
         with open(filePath, 'a') as fp:
-            json.dump(market, fp)
+            json.dump(result, fp)
         with open(f"{filePath}", 'r') as f:
-            marketyearest = json.load(f)
-        print('Quarter enterprise value File does not exist, will create file and return to you.')
+            nasdaq = json.load(f)
+        print('Nasdaq EPS Estimate File does not exist, will create file and return to you.')
     # Takes 4 year data points and turns it into 16 quarterly points equally spaced
     new_data = []
-    for d in marketyearest:
+    for d in nasdaq:
         year = int(d['date'])
         date_str = f"{year}-12-31"
         date = datetime.strptime(date_str, "%Y-%m-%d").date()
@@ -310,4 +324,3 @@ def get_marketwatch_yearly_est(symbol):
                 continue
             data[start_index+j]['futureeps'] = round(start_value + j*step, 2)
     return data
-
