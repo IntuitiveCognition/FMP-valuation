@@ -12,7 +12,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
+#test#
 #### Holds functions to retreive data ###
 api = os.getenv("FMP_API_KEY")
 def get_annual_date(symbol):
