@@ -9,10 +9,12 @@ from dateutil.relativedelta import relativedelta
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from selenium import webdriver
-
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 #### Holds functions to retreive data ###
-api = "c0125052bc240a2359979dc2de79eb99"
+api = os.getenv("FMP_API_KEY")
 def get_annual_date(symbol):
     #finds dates for latest annual 10K and quarter 10Q reports
     check10K = requests.get(f"https://financialmodelingprep.com/api/v3/sec_filings/{symbol}?type=10-K&page=0&apikey={api}")
@@ -265,19 +267,24 @@ def get_nasdaq_yearly_est(symbol):
         
     else:    
         Path(f"E:/astockwebsite/{symbol}/{symbol}{today}nasdaq").mkdir(parents=True, exist_ok=True)
+
         service = Service('./chromedriver')
         driver = webdriver.Chrome(service=service)
+        symbol = 'cmg'
         url = f'https://www.nasdaq.com/market-activity/stocks/{symbol}/earnings'
         driver.get(url)
-        table = driver.find_element('xpath', '//table[@class="earnings-forecast__table"]')
+        wait = WebDriverWait(driver, 5)  # Adjust the timeout value as needed
+        table_element = wait.until(EC.presence_of_element_located((By.XPATH, '//table[@class="earnings-forecast__table"]')))
+        table = table_element
         headers = [th.text for th in table.find_elements('xpath', './thead//th')]
         data = []
         for row in table.find_elements('xpath', './tbody//tr'):
             row_data = [td.text for td in row.find_elements('xpath', './/th|.//td')]
             data.append(row_data)
-
-        driver.quit()
         df = pd.DataFrame(data, columns=headers)
+        driver.quit()
+
+
         result = []
         for index, row in df.iterrows():
             futureeps = row['Consensus EPS* Forecast']

@@ -1,8 +1,13 @@
+import os
 import pandas as pd
 import requests
 from . import functions 
 # dataframe for 20year(main dataframe)
-api = "c0125052bc240a2359979dc2de79eb99"
+
+
+### https://www.youtube.com/watch?v=vcDfNvC6Ui4  hid api using setx via that youtube video
+
+api = os.getenv("FMP_API_KEY")
 
 def get_finance_data(symbol,latest10K_date):
     
